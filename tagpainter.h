@@ -44,9 +44,6 @@ private:
   int total_height_;
   int codes_size_;
   int tag_size_;
-
-  void scale_input_parameters(double scale);
-  void calculate_parameters();
 };
 
 #endif // TAGPAINTER_H
