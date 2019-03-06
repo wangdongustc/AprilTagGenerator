@@ -37,10 +37,10 @@ private:
   unsigned long long start_id_;
   int border_;
   int corner_box_;
-  int padding_;
   int cols_;
   int rows_;
-  int pixel_size_;
+  int unit_pixels_;
+  int padding_pixels_;
 
   std::shared_ptr<TagPainter> p_tag_painter_;
 

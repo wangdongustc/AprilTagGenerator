@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>776</width>
+    <width>830</width>
     <height>572</height>
    </rect>
   </property>
@@ -102,16 +102,6 @@
        <widget class="QLineEdit" name="lineEdit_CornerBox"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_Padding">
-        <property name="text">
-         <string>Padding:</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLineEdit" name="lineEdit_Padding"/>
-      </item>
-      <item>
        <widget class="QLabel" name="label_Cols">
         <property name="text">
          <string>Cols:</string>
@@ -132,14 +122,24 @@
        <widget class="QLineEdit" name="lineEdit_Rows"/>
       </item>
       <item>
-       <widget class="QLabel" name="label_PixelSize">
+       <widget class="QLabel" name="label_UnitPixels">
         <property name="text">
-         <string>PixelSize</string>
+         <string>Unit Pixels:</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLineEdit" name="lineEdit_PixelSize"/>
+       <widget class="QLineEdit" name="lineEdit_UnitPixels"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_Padding">
+        <property name="text">
+         <string>Padding Pixels:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_Padding"/>
       </item>
      </layout>
     </item>

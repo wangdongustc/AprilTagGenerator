@@ -36,7 +36,7 @@ e.g. a 3x3 tag pattern starting from id 0 is arranged in the following way:
 0 1 2
 ```
 
-"Pixel"  means the smallest unit in the tag
+"Unit"  means the smallest unit in the tag
 
 "Border" means the most outer black border of each tag
 

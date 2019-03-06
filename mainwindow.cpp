@@ -13,21 +13,21 @@ MainWindow::MainWindow(QWidget *parent) :
   validator->setTop(100);
   validator->setBottom(0);
 
-  ui->lineEdit_ID        ->setValidator(validator);
-  ui->lineEdit_Border    ->setValidator(validator);
-  ui->lineEdit_CornerBox ->setValidator(validator);
-  ui->lineEdit_Padding   ->setValidator(validator);
-  ui->lineEdit_Cols      ->setValidator(validator);
-  ui->lineEdit_Rows      ->setValidator(validator);
-  ui->lineEdit_PixelSize ->setValidator(validator);
+  ui->lineEdit_ID         ->setValidator(validator);
+  ui->lineEdit_Border     ->setValidator(validator);
+  ui->lineEdit_CornerBox  ->setValidator(validator);
+  ui->lineEdit_Cols       ->setValidator(validator);
+  ui->lineEdit_Rows       ->setValidator(validator);
+  ui->lineEdit_UnitPixels ->setValidator(validator);
+  ui->lineEdit_Padding    ->setValidator(validator);
 
   start_id_ = 0;
   border_ = 1;
   corner_box_ = 3;
-  padding_ = 3;
   cols_ = 3;
   rows_ = 3;
-  pixel_size_ = 5;
+  unit_pixels_ = 5;
+  padding_pixels_ = 3 * unit_pixels_;
 
   reset_params();
 
@@ -41,23 +41,23 @@ MainWindow::~MainWindow()
 
 void MainWindow::reset_params()
 {
-  ui->lineEdit_ID        ->setText(QString::number(start_id_));
-  ui->lineEdit_Border    ->setText(QString::number(border_));
-  ui->lineEdit_CornerBox ->setText(QString::number(corner_box_));
-  ui->lineEdit_Padding   ->setText(QString::number(padding_));
-  ui->lineEdit_Cols      ->setText(QString::number(cols_));
-  ui->lineEdit_Rows      ->setText(QString::number(rows_));
-  ui->lineEdit_PixelSize ->setText(QString::number(pixel_size_));
+  ui->lineEdit_ID         ->setText(QString::number(start_id_));
+  ui->lineEdit_Border     ->setText(QString::number(border_));
+  ui->lineEdit_CornerBox  ->setText(QString::number(corner_box_));
+  ui->lineEdit_Cols       ->setText(QString::number(cols_));
+  ui->lineEdit_Rows       ->setText(QString::number(rows_));
+  ui->lineEdit_UnitPixels ->setText(QString::number(unit_pixels_));
+  ui->lineEdit_Padding    ->setText(QString::number(padding_pixels_));
 }
 
 void MainWindow::paint_on_label()
 {
   p_tag_painter_ = std::make_shared<TagPainter>(start_id_, border_,
-                                                corner_box_, padding_,
-                                                cols_, rows_, pixel_size_);
+                                                corner_box_, padding_pixels_,
+                                                cols_, rows_, unit_pixels_);
   auto& tp = p_tag_painter_;
 
-  QPixmap pixmap(tp->total_width(), tp->total_height());
+  QPixmap pixmap(tp->pixel_count_width(), tp->pixel_count_height());
   {
     QPainter painter(&pixmap);
     tp->PaintTagBoard(painter);
@@ -95,13 +95,13 @@ void MainWindow::on_pushButtonReset_clicked()
 
 void MainWindow::on_pushButtonApply_clicked()
 {
-  start_id_   = ui->lineEdit_ID        ->text().toULongLong();
-  border_     = ui->lineEdit_Border    ->text().toInt();
-  corner_box_ = ui->lineEdit_CornerBox ->text().toInt();
-  padding_    = ui->lineEdit_Padding   ->text().toInt();
-  cols_       = ui->lineEdit_Cols      ->text().toInt();
-  rows_       = ui->lineEdit_Rows      ->text().toInt();
-  pixel_size_ = ui->lineEdit_PixelSize ->text().toInt();
+  start_id_       = ui->lineEdit_ID         ->text().toULongLong();
+  border_         = ui->lineEdit_Border     ->text().toInt();
+  corner_box_     = ui->lineEdit_CornerBox  ->text().toInt();
+  cols_           = ui->lineEdit_Cols       ->text().toInt();
+  rows_           = ui->lineEdit_Rows       ->text().toInt();
+  unit_pixels_    = ui->lineEdit_UnitPixels ->text().toInt();
+  padding_pixels_ = ui->lineEdit_Padding    ->text().toInt();
 
   paint_on_label();
 }
