@@ -17,6 +17,10 @@ public:
 
   void PaintTagBoard(QPainter& painter);
 
+  void PaintDrillHoles(QPainter& painter);
+
+  void PaintLabel(QPainter& painter);
+
   int total_width() { return total_width_; }
 
   int total_height() { return total_height_; }

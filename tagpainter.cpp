@@ -107,4 +107,45 @@ void TagPainter::PaintTagBoard(QPainter &painter)
 {
   PaintTagGrid(painter);
   PaintCornerGrid(painter);
+  // if you want to make a print acrylic board, here is an example for
+  // add drillhole guides on the board if you want the manufactor to
+  // drill holes on the board.
+  // PaintLabel(painter);
+  // PaintDrillHoles(painter);
+}
+
+void TagPainter::PaintDrillHoles(QPainter& painter) {
+  painter.save();
+
+  int hole_r = 1;
+  int hole_d = 2 * hole_r;
+  painter.setPen(Qt::red);
+  // painter.setBrush(Qt::black);
+  for (int i = 0; i < 4; ++i) {
+    painter.drawEllipse(200 + i * 200 - hole_r, 25 - hole_r,            hole_d, hole_d);
+    painter.drawEllipse(200 + i * 200 - hole_r, 1000 - 25 - hole_r,     hole_d, hole_d);
+    painter.drawEllipse(25 - hole_r,            200 + i * 200 - hole_r, hole_d, hole_d);
+    painter.drawEllipse(1000 - 25 - hole_r,     200 + i * 200 - hole_r, hole_d, hole_d);
+  }
+  for (int i = 0; i < 3; ++i) {
+    painter.drawEllipse(300 + i * 200 - hole_r, 50 - hole_r,            hole_d, hole_d);
+    painter.drawEllipse(300 + i * 200 - hole_r, 1000 - 50 - hole_r,     hole_d, hole_d);
+    painter.drawEllipse(50 - hole_r,            300 + i * 200 - hole_r, hole_d, hole_d);
+    painter.drawEllipse(1000 - 50 - hole_r,     300 + i * 200 - hole_r, hole_d, hole_d);
+  }
+
+  painter.restore();
+}
+
+void TagPainter::PaintLabel(QPainter &painter) {
+  painter.save();
+  QFont font;
+  font.setPointSize(16);
+  painter.setFont(font);
+  painter.drawText(QPoint(30, 1000 - 30),
+                   QString::fromStdString(
+                     "ID: " + std::to_string(start_id_) +
+                     " - " + std::to_string(start_id_ + static_cast<unsigned long>(cols_ * rows_ - 1)))
+                   );
+  painter.restore();
 }

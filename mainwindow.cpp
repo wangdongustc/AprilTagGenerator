@@ -22,12 +22,14 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->lineEdit_Padding    ->setValidator(validator);
 
   start_id_ = 0;
-  border_ = 1;
+  border_ = 2;
   corner_box_ = 3;
-  cols_ = 3;
-  rows_ = 3;
-  unit_pixels_ = 5;
-  padding_pixels_ = 3 * unit_pixels_;
+  cols_ = 4;
+  rows_ = 4;
+  unit_pixels_ = 16;
+  padding_pixels_ = 60;
+
+  path_ = QString::fromStdString(std::to_string(start_id_) + ".svg");
 
   reset_params();
 
@@ -110,20 +112,29 @@ void MainWindow::on_pushButtonSave_clicked()
 {
   // save to file
   QString new_path = QFileDialog::getSaveFileName(this, tr("Save SVG"),
-                                                  path_, tr("SVG files (*svg)"));
+                                                  path_, tr("SVG files (*.svg)"));
   if (new_path.isEmpty()) {
     return;
   }
 
-  path_ = new_path;
+  if (new_path.length() < 4) {
+    path_ = new_path + ".svg";
+  } else {
+    if (new_path.endsWith(".svg", Qt::CaseInsensitive)) {
+      path_ = new_path;
+    } else {
+      path_ = new_path + ".svg";
+    }
+  }
+  qDebug() << "path to save: " << path_;
 
   QSvgGenerator svg_generator;
   svg_generator.setFileName(path_);
-  svg_generator.setSize(QSize(p_tag_painter_->total_width(),
-                              p_tag_painter_->total_height()));
+  svg_generator.setSize(QSize(p_tag_painter_->pixel_count_width(),
+                              p_tag_painter_->pixel_count_width()));
   svg_generator.setViewBox(QRect(0, 0,
-                                 p_tag_painter_->total_width(),
-                                 p_tag_painter_->total_height()));
+                                 p_tag_painter_->pixel_count_width(),
+                                 p_tag_painter_->pixel_count_width()));
   svg_generator.setTitle(tr("AprilTags, ID from ") +
                          QString::number(start_id_));
   svg_generator.setDescription(tr(""));
