@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>830</width>
+    <width>998</width>
     <height>572</height>
    </rect>
   </property>
@@ -140,6 +140,16 @@
       </item>
       <item>
        <widget class="QLineEdit" name="lineEdit_Padding"/>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_DPI">
+        <property name="text">
+         <string>DPI:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_DPI"/>
       </item>
      </layout>
     </item>

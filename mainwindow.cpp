@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 
 #include <QtSvg>
+#include <QPdfWriter>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -10,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
   ui->setupUi(this);
   validator = new QIntValidator(this);
-  validator->setTop(100);
+  validator->setTop(1000);
   validator->setBottom(0);
 
   ui->lineEdit_ID         ->setValidator(validator);
@@ -20,16 +21,18 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->lineEdit_Rows       ->setValidator(validator);
   ui->lineEdit_UnitPixels ->setValidator(validator);
   ui->lineEdit_Padding    ->setValidator(validator);
+  ui->lineEdit_DPI        ->setValidator(validator);
 
   start_id_ = 0;
   border_ = 2;
   corner_box_ = 3;
   cols_ = 4;
   rows_ = 4;
-  unit_pixels_ = 16;
-  padding_pixels_ = 60;
+  unit_pixels_ = 80;
+  padding_pixels_ = 300;
 
-  path_ = QString::fromStdString(std::to_string(start_id_) + ".svg");
+  // for the convenience of converting inches to cm
+  file_dpi_ = 254;
 
   reset_params();
 
@@ -50,6 +53,7 @@ void MainWindow::reset_params()
   ui->lineEdit_Rows       ->setText(QString::number(rows_));
   ui->lineEdit_UnitPixels ->setText(QString::number(unit_pixels_));
   ui->lineEdit_Padding    ->setText(QString::number(padding_pixels_));
+  ui->lineEdit_DPI        ->setText(QString::number(file_dpi_));
 }
 
 void MainWindow::paint_on_label()
@@ -71,17 +75,28 @@ void MainWindow::paint_on_label()
   if (scale < 1) {
     // image size is larger than controlled size
     pixmap = pixmap.scaled(static_cast<int>(pixmap.width() * scale),
-                           static_cast<int>(pixmap.height() * scale));
+                           static_cast<int>(pixmap.height() * scale),
+                           Qt::KeepAspectRatio, Qt::SmoothTransformation);
   }
   ui->label->setPixmap(pixmap);
 
   QString status =
-      tr("tag_size: ")     + QString::number(tp->pixel_count_tag_size()) +
-      tr(",  corner_box: ") + QString::number(tp->pixel_count_corner_box_size()) +
-      tr(",  width: ")      + QString::number(tp->pixel_count_width()) +
-      tr(",  height: ")     + QString::number(tp->pixel_count_height());
+      tr("tag_size: ")        + QString::number(pixel_to_cm(tp->pixel_count_tag_size())) +
+      tr(" cm,  corner_box: ") + QString::number(pixel_to_cm(tp->pixel_count_corner_box_size())) +
+      tr(" cm,  width: ")      + QString::number(pixel_to_cm(tp->pixel_count_width())) +
+      tr(" cm,  height: ")     + QString::number(pixel_to_cm(tp->pixel_count_height())) +
+      tr(" cm.\n") +
+      tr("tag_size: ")        + QString::number(tp->pixel_count_tag_size()) +
+      tr(" px,  corner_box: ") + QString::number(tp->pixel_count_corner_box_size()) +
+      tr(" px,  width: ")      + QString::number(tp->pixel_count_width()) +
+      tr(" px,  height: ")     + QString::number(tp->pixel_count_height()) +
+      tr(" px.");
   ui->label_status->setText(status);
 
+}
+
+double MainWindow::pixel_to_cm(int pixel) {
+  return pixel * 1.0 / file_dpi_ * 2.54;
 }
 
 void MainWindow::on_pushButtonClose_clicked()
@@ -104,6 +119,7 @@ void MainWindow::on_pushButtonApply_clicked()
   rows_           = ui->lineEdit_Rows       ->text().toInt();
   unit_pixels_    = ui->lineEdit_UnitPixels ->text().toInt();
   padding_pixels_ = ui->lineEdit_Padding    ->text().toInt();
+  file_dpi_       = ui->lineEdit_DPI        ->text().toInt();
 
   paint_on_label();
 }
@@ -111,33 +127,68 @@ void MainWindow::on_pushButtonApply_clicked()
 void MainWindow::on_pushButtonSave_clicked()
 {
   // save to file
-  QString new_path = QFileDialog::getSaveFileName(this, tr("Save SVG"),
-                                                  path_, tr("SVG files (*.svg)"));
+  double width = pixel_to_cm(p_tag_painter_->pixel_count_width());
+  double height = pixel_to_cm(p_tag_painter_->pixel_count_height());
+  int first_id = static_cast<int>(start_id_);
+  int last_id  = static_cast<int>(cols_ * rows_ + start_id_ - 1);
+  char filename_cstr[80];
+  std::sprintf(filename_cstr, "id_%d-%d_size_%.2fcmx%.2fcm.svg",
+               first_id, last_id, width, height);
+  path_ = QString::fromStdString(filename_cstr);
+
+  QString new_path = QFileDialog::getSaveFileName(this, tr("Save to PDF or SVG"),
+                                                  path_, tr("PDF (*.pdf);;SVG (*.svg)"));
   if (new_path.isEmpty()) {
     return;
   }
 
+  enum {
+    PDF = 0,
+    SVG = 1,
+  };
+
+  int filetype = PDF;
+
   if (new_path.length() < 4) {
-    path_ = new_path + ".svg";
+    path_ = new_path + ".pdf";
   } else {
-    if (new_path.endsWith(".svg", Qt::CaseInsensitive)) {
+    if (new_path.endsWith(".pdf", Qt::CaseInsensitive)) {
       path_ = new_path;
+    } else if (new_path.endsWith(".svg", Qt::CaseInsensitive)) {
+      path_ = new_path;
+      filetype = SVG;
     } else {
-      path_ = new_path + ".svg";
+      path_ = new_path + ".pdf";
     }
   }
   qDebug() << "path to save: " << path_;
 
-  QSvgGenerator svg_generator;
-  svg_generator.setFileName(path_);
-  svg_generator.setSize(QSize(p_tag_painter_->pixel_count_width(),
-                              p_tag_painter_->pixel_count_width()));
-  svg_generator.setViewBox(QRect(0, 0,
-                                 p_tag_painter_->pixel_count_width(),
-                                 p_tag_painter_->pixel_count_width()));
-  svg_generator.setTitle(tr("AprilTags, ID from ") +
-                         QString::number(start_id_));
-  svg_generator.setDescription(tr(""));
-  QPainter painter(&svg_generator);
-  p_tag_painter_->PaintTagBoard(painter);
+  QString title = tr("AprilTags, ID from ") + QString::number(first_id) +
+                  tr(" to ") + QString::number(last_id);
+
+  if (filetype == SVG) {
+    QSvgGenerator svg_generator;
+    svg_generator.setFileName(path_);
+    svg_generator.setSize(QSize(p_tag_painter_->pixel_count_width(),
+                                p_tag_painter_->pixel_count_height()));
+    svg_generator.setViewBox(QRect(0, 0,
+                                   p_tag_painter_->pixel_count_width(),
+                                   p_tag_painter_->pixel_count_height()));
+    svg_generator.setTitle(title);
+    svg_generator.setResolution(file_dpi_);
+    QPainter painter(&svg_generator);
+    p_tag_painter_->PaintTagBoard(painter);
+  } else if (filetype == PDF) {
+    QPdfWriter pdf_writer(path_);
+    pdf_writer.setTitle(title);
+    pdf_writer.setResolution(file_dpi_);
+    QPageSize page_size(QSizeF(width * 10.0,
+                               height * 10.0),
+                        QPageSize::Millimeter, "", QPageSize::FuzzyMatch);
+    pdf_writer.setPageSize(page_size);
+    pdf_writer.setPageMargins(QMarginsF(0, 0, 0, 0));
+    pdf_writer.newPage();
+    QPainter painter(&pdf_writer);
+    p_tag_painter_->PaintTagBoard(painter);
+  }
 }

@@ -7,7 +7,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt5 REQUIRED COMPONENTS Widgets Svg)
+find_package(Qt5 REQUIRED COMPONENTS Widgets Svg Gui)
 
 find_package(apriltags REQUIRED)
 
@@ -19,4 +19,4 @@ add_executable(${PROJECT_NAME} main.cpp
                                tagpainter.cpp
                                )
 
-target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} Qt5::Widgets Qt5::Svg apriltags)
+target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBS} Qt5::Widgets Qt5::Svg Qt5::Gui apriltags)

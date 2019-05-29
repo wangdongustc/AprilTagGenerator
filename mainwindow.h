@@ -41,6 +41,7 @@ private:
   int rows_;
   int unit_pixels_;
   int padding_pixels_;
+  int file_dpi_;
 
   std::shared_ptr<TagPainter> p_tag_painter_;
 
@@ -48,6 +49,7 @@ private:
 
   void reset_params();
   void paint_on_label();
+  inline double pixel_to_cm(int pixel);
 };
 
 #endif // MAINWINDOW_H
