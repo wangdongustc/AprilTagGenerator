@@ -70,10 +70,15 @@ void MainWindow::paint_on_label()
   }
 
   // scale the image if needed
-  double ctrl_size = 800;
-  double scale = ctrl_size / static_cast<double>(std::max(pixmap.width(), pixmap.height()));
-  if (scale < 1) {
+  double total_ctrl_size = 800;
+  double total_scale =
+      total_ctrl_size / static_cast<double>(std::max(pixmap.width(), pixmap.height()));
+  double tag_ctrl_size = 150;
+  double tag_scale =
+      tag_ctrl_size / static_cast<double>(pixmap.width()) * cols_;
+  if ((total_scale < 1) || (tag_scale < 1)) {
     // image size is larger than controlled size
+    double scale = std::min(total_scale, tag_scale);
     pixmap = pixmap.scaled(static_cast<int>(pixmap.width() * scale),
                            static_cast<int>(pixmap.height() * scale),
                            Qt::KeepAspectRatio, Qt::SmoothTransformation);
