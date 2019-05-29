@@ -8,6 +8,7 @@
 static AprilTags::TagCodes tag_codes = AprilTags::tagCodes36h11;
 static Qt::GlobalColor fore_color = Qt::white;
 static Qt::GlobalColor back_color = Qt::black;
+static QString font_family = "Monospace";
 
 TagPainter::TagPainter(unsigned long start_id, int border, int corner_box,
                        int padding_pixels, int cols, int rows,
@@ -110,8 +111,9 @@ void TagPainter::PaintTagBoard(QPainter &painter)
   // if you want to make a print acrylic board, here is an example for
   // add drillhole guides on the board if you want the manufactor to
   // drill holes on the board.
-  // PaintLabel(painter);
   // PaintDrillHoles(painter);
+  PaintLabel(painter);
+  PaintCorrdinate(painter);
 }
 
 void TagPainter::PaintDrillHoles(QPainter& painter) {
@@ -139,13 +141,78 @@ void TagPainter::PaintDrillHoles(QPainter& painter) {
 
 void TagPainter::PaintLabel(QPainter &painter) {
   painter.save();
+  int font_size = padding_pixels_ / 2;
   QFont font;
-  font.setPointSize(16);
+  font.setFamily(font_family);
+  font.setPixelSize(font_size);
   painter.setFont(font);
-  painter.drawText(QPoint(30, 1000 - 30),
+  // to the origin
+  painter.translate(0.5 * padding_pixels_,
+                    total_height_ * unit_pixels_ + 1.5 * padding_pixels_);
+  // just behind the text "x"
+  double x_label_end = static_cast<int>(unit_pixels_ * tag_size_  / 2.0 * 1.1);
+  int end_id = static_cast<int>(start_id_) + cols_ * rows_ - 1;
+  painter.drawText(QPointF(x_label_end + font_size, font_size / 2),
                    QString::fromStdString(
-                     "ID: " + std::to_string(start_id_) +
-                     " - " + std::to_string(start_id_ + static_cast<unsigned long>(cols_ * rows_ - 1)))
+                     "ID:" + std::to_string(start_id_) +
+                     "-" + std::to_string(end_id))
                    );
   painter.restore();
 }
+
+void TagPainter::PaintCorrdinate(QPainter& painter) {
+  painter.save();
+  auto color_x = Qt::red;
+  auto color_y = Qt::blue;
+  int linewidth = std::max(unit_pixels_ / 4, 4);
+  double arraw_size = unit_pixels_;
+  double arraw_len = unit_pixels_ * tag_size_ / 2.0;
+  double angle = 12.0 * 3.14159 / 180.0;
+  double arraw_width = arraw_size * std::tan(angle);
+  QPen pen;
+  QBrush brush;
+  pen.setWidth(linewidth);
+  brush.setStyle(Qt::BrushStyle::SolidPattern);
+  QFont font;
+  int font_size = padding_pixels_ / 2;
+  font.setFamily(font_family);
+  font.setPixelSize(font_size);
+  painter.setFont(font);
+
+  // to the origin
+  painter.translate(0.5 * padding_pixels_,
+                    total_height_ * unit_pixels_ + 1.5 * padding_pixels_);
+
+  // x-axis
+  pen.setColor(color_x);
+  brush.setColor(color_x);
+  painter.setPen(pen);
+  painter.setBrush(brush);
+
+  painter.drawLine(0, 0, static_cast<int>(arraw_len), 0);
+  std::vector<QPointF> x_arraw {
+    {arraw_len, 0.0},
+    {arraw_len - arraw_size, arraw_width},
+    {arraw_len - arraw_size, -arraw_width},
+  };
+  painter.drawPolygon(x_arraw.data(), static_cast<int>(x_arraw.size()));
+  painter.drawText(QPointF(arraw_len * 1.1, font_size / 2.0), "x");
+
+  // y-axis
+  pen.setColor(color_y);
+  brush.setColor(color_y);
+  painter.setPen(pen);
+  painter.setBrush(brush);
+
+  painter.drawLine(0, 0, 0, static_cast<int>(-arraw_len));
+  std::vector<QPointF> y_arraw {
+    {0.0, -arraw_len},
+    {arraw_width, -arraw_len + arraw_size},
+    {-arraw_width, -arraw_len + arraw_size},
+  };
+  painter.drawPolygon(y_arraw.data(), static_cast<int>(y_arraw.size()));
+  painter.drawText(QPointF(-font_size / 2.0, -arraw_len * 1.1), "y");
+
+  painter.restore();
+}
+

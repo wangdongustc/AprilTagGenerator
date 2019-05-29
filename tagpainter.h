@@ -21,6 +21,8 @@ public:
 
   void PaintLabel(QPainter& painter);
 
+  void PaintCorrdinate(QPainter& painter);
+
   int total_width() { return total_width_; }
 
   int total_height() { return total_height_; }
