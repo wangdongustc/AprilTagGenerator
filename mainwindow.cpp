@@ -23,6 +23,12 @@ MainWindow::MainWindow(QWidget *parent) :
   ui->lineEdit_Padding    ->setValidator(validator);
   ui->lineEdit_DPI        ->setValidator(validator);
 
+  ui->comboBox_Family->addItem("36h11", TagFamilyName::TAG36H11);
+  ui->comboBox_Family->addItem("36h9",  TagFamilyName::TAG36H9);
+  ui->comboBox_Family->addItem("25h9",  TagFamilyName::TAG25H9);
+  ui->comboBox_Family->addItem("25h7",  TagFamilyName::TAG25H7);
+  ui->comboBox_Family->addItem("16h5",  TagFamilyName::TAG16H5);
+
   start_id_ = 0;
   border_ = 2;
   corner_box_ = 3;
@@ -30,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
   rows_ = 4;
   unit_pixels_ = 80;
   padding_pixels_ = 300;
+  tag_family_ = TagFamilyName::TAG36H11;
 
   // for the convenience of converting inches to cm
   file_dpi_ = 254;
@@ -54,12 +61,14 @@ void MainWindow::reset_params()
   ui->lineEdit_UnitPixels ->setText(QString::number(unit_pixels_));
   ui->lineEdit_Padding    ->setText(QString::number(padding_pixels_));
   ui->lineEdit_DPI        ->setText(QString::number(file_dpi_));
+  ui->comboBox_Family     ->setCurrentIndex(static_cast<int>(tag_family_));
 }
 
 void MainWindow::paint_on_label()
 {
-  p_tag_painter_ = std::make_shared<TagPainter>(start_id_, border_,
-                                                corner_box_, padding_pixels_,
+  p_tag_painter_ = std::make_shared<TagPainter>(tag_family_, start_id_,
+                                                border_, corner_box_,
+                                                padding_pixels_,
                                                 cols_, rows_, unit_pixels_);
   auto& tp = p_tag_painter_;
 
@@ -125,7 +134,8 @@ void MainWindow::on_pushButtonApply_clicked()
   unit_pixels_    = ui->lineEdit_UnitPixels ->text().toInt();
   padding_pixels_ = ui->lineEdit_Padding    ->text().toInt();
   file_dpi_       = ui->lineEdit_DPI        ->text().toInt();
-
+  tag_family_     = *(TagFamilyName*) (
+                    ui->comboBox_Family->currentData().data());
   paint_on_label();
 }
 

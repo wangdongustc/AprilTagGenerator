@@ -42,6 +42,7 @@ private:
   int unit_pixels_;
   int padding_pixels_;
   int file_dpi_;
+  TagFamilyName tag_family_;
 
   std::shared_ptr<TagPainter> p_tag_painter_;
 

@@ -3,11 +3,19 @@
 
 #include <QPainter>
 
+enum TagFamilyName {
+  TAG36H11 = 0,
+  TAG36H9  = 1,
+  TAG25H9  = 2,
+  TAG25H7  = 3,
+  TAG16H5  = 4,
+};
+
 class TagPainter
 {
 public:
-  TagPainter(unsigned long start_id, int border, int corner_box,
-             int padding, int cols, int rows, int unit_pixels);
+  TagPainter(TagFamilyName tag_family, unsigned long start_id, int border,
+             int corner_box, int padding, int cols, int rows, int unit_pixels);
 
   void PaintTagAt(QPainter &painter, unsigned long id, int x, int y);
 

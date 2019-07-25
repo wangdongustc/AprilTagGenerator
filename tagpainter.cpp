@@ -2,21 +2,32 @@
 // clang-format off
 #include <AprilTags/TagDetector.h>
 #include <AprilTags/Tag36h11.h>
+#include <AprilTags/Tag36h9.h>
+#include <AprilTags/Tag25h9.h>
+#include <AprilTags/Tag25h7.h>
+#include <AprilTags/Tag16h5.h>
 // clang-format on
 #include <stack>
-
+#include <map>
 static AprilTags::TagCodes tag_codes = AprilTags::tagCodes36h11;
 static Qt::GlobalColor fore_color = Qt::white;
 static Qt::GlobalColor back_color = Qt::black;
 static QString font_family = "Monospace";
-
-TagPainter::TagPainter(unsigned long start_id, int border, int corner_box,
-                       int padding_pixels, int cols, int rows,
-                       int unit_pixels) :
+static std::map<TagFamilyName, AprilTags::TagCodes> family_codes {
+  {TagFamilyName::TAG36H11, AprilTags::tagCodes36h11},
+  {TagFamilyName::TAG36H9,  AprilTags::tagCodes36h9},
+  {TagFamilyName::TAG25H9,  AprilTags::tagCodes25h9},
+  {TagFamilyName::TAG25H7,  AprilTags::tagCodes25h7},
+  {TagFamilyName::TAG16H5,  AprilTags::tagCodes16h5},
+};
+TagPainter::TagPainter(TagFamilyName tag_family, unsigned long start_id,
+                       int border, int corner_box, int padding_pixels,
+                       int cols, int rows, int unit_pixels) :
   start_id_(start_id), border_(border), corner_box_(corner_box),
   padding_pixels_(padding_pixels), cols_(cols), rows_(rows),
   unit_pixels_(unit_pixels)
 {
+  tag_codes = family_codes.at(tag_family);
   // the tagcode size
   codes_size_ = static_cast<int>(std::sqrt(tag_codes.bits));
   // calculate parameters
