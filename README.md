@@ -9,13 +9,18 @@ download [id_0-8_size_40.00cmx40.00cm.svg](./id_0-8_size_40.00cmx40.00cm.svg)
 
 download [id_0-8_size_40.00cmx40.00cm.pdf](./id_0-8_size_40.00cmx40.00cm.pdf)
 
+### !!! Important Notice !!!
+**By default the black border size of each tag is set to 2. This might cause failure of detections for most apriltag detection implementations.**
+
+You can use this repo to detect such tags: [huangqinjin/apriltags](https://github.com/huangqinjin/apriltags). The reason to use 2 as the border size can be found in this issue: https://github.com/wangdongustc/AprilTagGenerator/issues/2.
+
 ## Prerequest
 
 Apriltags cpp library (originally from [MIT](http://people.csail.mit.edu/kaess/apriltags/)): [huangqinjin/apriltags](https://github.com/huangqinjin/apriltags) or [wangdongustc/apriltags](https://github.com/wangdongustc/apriltags)
 
 You might need [OpenCV](https://github.com/opencv/opencv/) when building the apriltags library, but actually this project only uses the header files of the apriltags library.
 
-Qt5 Widgets, Svg and Gui are needed to show the GUI and generate the SVG or PDF Vectorgraph Pattern.
+Qt5 Widgets, Svg and Gui are needed to show the GUI and generate the SVG or PDF Vectorgraph Pattern (sudo apt install qt5-default should work on Ubuntu Linux).
 
 Also this project uses cmake to manage the building process.
 
